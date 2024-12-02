@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from flask import Flask, request, render_template, jsonify
 from keras.models import load_model
-
+import gunicorn
 # Initialize the Flask app
 app = Flask(__name__)
 
