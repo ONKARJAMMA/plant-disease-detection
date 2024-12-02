@@ -8,7 +8,7 @@ import gunicorn
 app = Flask(__name__)
 
 # Load the pre-trained model
-model = load_model('C:/Projects/PDD/plant_disease_model.h5')
+model = load_model('plant_disease_model.h5')
 
 # Class names - update this as per your model
 CLASS_NAMES = ('Tomato-Bacterial_spot', 'Potato-Barly blight', 'Corn-Common_rust')
