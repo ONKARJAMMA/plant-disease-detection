@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Detection</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #e0f7e9, #ffffff);
+            color: #333;
+            text-align: center;
+        }
+
+        header {
+            padding: 20px;
+            background: #4caf50;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            margin: 30px auto;
+            max-width: 900px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="file"] {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            outline: none;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background: #4caf50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        #prediction-result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        #image-preview {
+            margin-top: 20px;
+            max-width: 400px;
+            max-height: 300px;
+            border: 2px solid #4caf50;
+            border-radius: 10px;
+            object-fit: contain;
+            display: none;
+        }
+
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .image-gallery img {
+            width: 200px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            transition: transform 0.3s, border 0.3s;
+        }
+
+        .image-gallery img:hover {
+            transform: scale(1.1);
+            border: 2px solid #4caf50;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 10px;
+            background: #4caf50;
+            color: white;
+            font-size: 14px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .subheading {
+            font-size: 20px;
+            margin: 20px 0;
+            color: #4caf50;
+        }
+
+        .hero-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        🌱 Plant Disease Detection System
+    </header>
+    <div class="container">
+        <h1>Crop Disease Prediction Using Machine Learning</h1>
+        <p class="subheading">Harness the power of AI to protect your crops and maximize your yield.</p>
+        
+        <!-- Hero Image -->
+        <img class="hero-image" src="static/images/Hero_image.jpg" alt="Hero Image of Healthy Crops">
+
+        <!-- Form Section -->
+        <h2>Upload Your Plant Leaf Image</h2>
+        <form id="upload-form">
+            <input type="file" id="file-input" name="file" accept="image/*" required>
+            <br>
+            <button type="submit">Predict Disease</button>
+        </form>
+        <div id="prediction-result"></div>
+        <img id="image-preview" src="" alt="Uploaded Image">
+    </div>
+
+    <!-- Gallery Section -->
+    <div class="container">
+        <h2>Common Crop Diseases</h2>
+        <div class="gallery">
+            <img src="static/images/Image3.jpg" alt="Tomato leaf disease.">
+            <img src="static/images/Image4.jpg" alt="Potato early blight.">
+            <img src="static/images/Image5.jpg" alt="Corn rust disease">
+            <img src="static/images/Image6.jpg" alt="Healthy green plant.">
+            <img src="static/images/Image7.jpg" alt="Leaf spot disease.">
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        © 2024 Made by ONKAR JAMMA | 
+        <a href="https://www.linkedin.com/in/onkar-jamma-616010258/" target="_blank">LinkedIn</a> | 
+        <a href="https://github.com/ONKARJAMMA" target="_blank">GitHub</a>
+    
+    </footer>
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(event) {
+            event.preventDefault();
+
+            // Get the file input
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+
+            // Create a FormData object
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Preview the uploaded image
+            const reader = new FileReader();
+            reader.onload = function() {
+                document.getElementById('image-preview').src = reader.result;
+                document.getElementById('image-preview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Send the image to the Flask backend for prediction
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (result.prediction) {
+                // Show the prediction result
+                document.getElementById('prediction-result').innerHTML = `
+                    <span>🌿 Prediction:</span> ${result.prediction} <br>
+                    <span>🔍 Confidence:</span> ${(result.confidence * 100).toFixed(2)}%
+                `;
+            } else {
+                document.getElementById('prediction-result').innerHTML = `
+                    <span style="color: red;">❌ Error:</span> ${result.error}
+                `;
+            }
+        };
+    </script>
+</body>
+</html>
